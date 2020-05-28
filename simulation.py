@@ -94,7 +94,6 @@ while(True):
     b[:] = frame[:]  # Copy the original data into shared memory
     print('Sending')
     s.send(bytes("1",'utf8'))
-    s.send(bytes("1",'utf8'))
     t = s.recv(1024)
     frames += 1
 pepper.unsuscribeCamera(PepperVirtual.ID_CAMERA_TOP)
