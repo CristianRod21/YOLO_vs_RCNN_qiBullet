@@ -98,7 +98,6 @@ def main(_argv):
     shape = data.get("shape")
     shared_memory_name = data.get("name")
     type_data = data.get("type")
-    s.setblocking(0)
     
 
     # Attach to the existing shared memory block
@@ -118,7 +117,6 @@ def main(_argv):
             cv2.imshow('frame', frame)
             if cv2.waitKey(1) & 0xFF == ord('q'):
                 break
-            conn.sendall(bytes("1",'utf8'))
             conn.sendall(bytes("1",'utf8'))
             print("FPS: ", 1.0 / (time.time() - start_time))
   
