@@ -17,6 +17,11 @@ from qibullet import NaoVirtual
 from qibullet import PepperVirtual
 from qibullet import RomeoVirtual
 
+def rotate(pepper):
+    pepper.move(0, 0, 0.5)
+    # time.sleep(0.1745)
+    # pepper.move(0,0,0)
+
 cap = cv2.VideoCapture('dang.mp4')
 #fps = int(cap.get(60))
 
@@ -76,8 +81,11 @@ print('Retriving camera frame')
 #x = 0
 frames = 0
 
-while(True):
+object_to_find = input("¿Qué objeto desea encontrar?")
+not_found = True
 
+while(not_found):
+    rotate(pepper)
     t = None
     frame = pepper.getCameraFrame(handle)
     if frames == 0:
@@ -95,8 +103,31 @@ while(True):
     print('Sending')
     s.send(bytes("1",'utf8'))
     t = s.recv(1024)
+    found_classes = json.loads(t.decode())
+    found_classes = found_classes.get("found_objects")
+
+    if(object_to_find in found_classes):
+        not_found = False
+
     frames += 1
-pepper.unsuscribeCamera(PepperVirtual.ID_CAMERA_TOP)
+
+pepper.move(0, 0, 0.5)
+time.sleep(0.1745)
+pepper.move(0,0,0)
+pepper.move(2,0,0)
+time.sleep(4)
+pepper.move(0,0,0)
+
+# rotate(pepper)
+print("Aquí está el " + object_to_find)
+
+input("Cualquier tecla para salir")
+
+pepper.unsubscribeCamera(handle)
+shm.close() 
+shm.unlink()
 
 cap.release()
 cv2.destroyAllWindows()
+
+

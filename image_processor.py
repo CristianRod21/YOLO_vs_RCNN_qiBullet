@@ -32,7 +32,7 @@ flags.DEFINE_string('output', 'result.png', 'path to output image')
 gpus = tf.config.experimental.list_physical_devices('GPU')
 if gpus:
   try:
-    tf.config.experimental.set_virtual_device_configuration(gpus[0], [tf.config.experimental.VirtualDeviceConfiguration(memory_limit=4096)])
+    tf.config.experimental.set_virtual_device_configuration(gpus[0], [tf.config.experimental.VirtualDeviceConfiguration(memory_limit=3000)])
   except RuntimeError as e:
     print(e)
 
@@ -100,7 +100,7 @@ def main(_argv):
     data = (conn.recv(1024))
     data = json.loads(data.decode())
 
-    conn.sendall(json.dumps(data).encode())
+    # conn.sendall(json.dumps(data).encode())
     print('Recived iniatializing data')
     shape = data.get("shape")
     shared_memory_name = data.get("name")
@@ -113,6 +113,7 @@ def main(_argv):
     previous = None
     frame = None
     print('Esperando imágenes')
+
     while True:
         start_time = time.time()
         print('Waiting frame')
@@ -120,12 +121,15 @@ def main(_argv):
         if data == bytes('1', 'utf8'):
             previous = frame
             frame = np.ndarray(shape, dtype=type_data, buffer=existing_shm.buf)
-            frame = process(frame,input_size,model, FLAGS, ANCHORS, STRIDES,XYSCALE)
+            frame, classes_found = process(frame,input_size,model, FLAGS, ANCHORS, STRIDES,XYSCALE)
             cv2.imshow('frame', frame)
             if cv2.waitKey(1) & 0xFF == ord('q'):
                 break
-            conn.sendall(bytes("1",'utf8'))
+            data = json.dumps({"found_objects":classes_found})
+            conn.sendall(data.encode())
             print("FPS: ", 1.0 / (time.time() - start_time))
+    existing_shm.close()
+
   
 
 def process(frame,input_size,model, FLAGS, ANCHORS, STRIDES,XYSCALE ):
@@ -153,14 +157,14 @@ def process(frame,input_size,model, FLAGS, ANCHORS, STRIDES,XYSCALE ):
         bboxes = utils.postprocess_boxes(pred_bbox, frame_size, input_size, 0.25)
         bboxes = utils.nms(bboxes, 0.213, method='nms')
 
-        image = utils.draw_bbox(frame, bboxes)
+        image, found_classes = utils.draw_bbox(frame, bboxes)
         curr_time = time.time()
         exec_time = curr_time - prev_time
         result = np.asarray(image)
         info = "time: %.2f ms" %(1000*exec_time)
         print(info)
         result = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
-        return result
+        return result, found_classes
 if __name__ == "__main__":
     try:
         app.run(main)
