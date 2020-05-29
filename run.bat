@@ -1,0 +1,1 @@
+python image_processor.py --weights yolov3.weights --model yolov3 --size 320
