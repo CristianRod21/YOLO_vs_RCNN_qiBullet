@@ -6,6 +6,8 @@ import socket
 import json
 from sys import getsizeof
 
+import find_word
+
 import sys
 import time
 
@@ -81,45 +83,48 @@ print('Retriving camera frame')
 #x = 0
 frames = 0
 
-object_to_find = input("¿Qué objeto desea encontrar?")
+valid_object, object_to_find = find_word.find_word(input("¿Qué objeto desea encontrar?"))
 not_found = True
 
-while(not_found):
-    rotate(pepper)
-    t = None
-    frame = pepper.getCameraFrame(handle)
-    if frames == 0:
-        print('Sending initial informantion')
-        shm = shared_memory.SharedMemory(create=True, size=frame.nbytes) # name='image_random'
-        data=json.dumps({"shape": frame.shape, "name": shm.name, "type": frame.dtype.name})
-        s.send(data.encode())
-        
-        #data = s.recv(1024)
-        #s.close()
-        #print('Received', data)
-    # Now create a NumPy array backed by shared memory
-    b = np.ndarray(frame.shape, dtype=frame.dtype, buffer=shm.buf)
-    b[:] = frame[:]  # Copy the original data into shared memory
-    print('Sending')
-    s.send(bytes("1",'utf8'))
-    t = s.recv(1024)
-    found_classes = json.loads(t.decode())
-    found_classes = found_classes.get("found_objects")
+if valid_object:
+    while(not_found):
+        rotate(pepper)
+        t = None
+        frame = pepper.getCameraFrame(handle)
+        if frames == 0:
+            print('Sending initial informantion')
+            shm = shared_memory.SharedMemory(create=True, size=frame.nbytes) # name='image_random'
+            data=json.dumps({"shape": frame.shape, "name": shm.name, "type": frame.dtype.name})
+            s.send(data.encode())
+            
+            #data = s.recv(1024)
+            #s.close()
+            #print('Received', data)
+        # Now create a NumPy array backed by shared memory
+        b = np.ndarray(frame.shape, dtype=frame.dtype, buffer=shm.buf)
+        b[:] = frame[:]  # Copy the original data into shared memory
+        print('Sending')
+        s.send(bytes("1",'utf8'))
+        t = s.recv(1024)
+        found_classes = json.loads(t.decode())
+        found_classes = found_classes.get("found_objects")
 
-    if(object_to_find in found_classes):
-        not_found = False
+        if(object_to_find in found_classes):
+            not_found = False
 
-    frames += 1
+        frames += 1
 
-pepper.move(0, 0, 0.5)
-time.sleep(0.1745)
-pepper.move(0,0,0)
-pepper.move(2,0,0)
-time.sleep(4)
-pepper.move(0,0,0)
+    pepper.move(0, 0, 0.5)
+    time.sleep(0.1745)
+    pepper.move(0,0,0)
+    pepper.move(2,0,0)
+    time.sleep(4)
+    pepper.move(0,0,0)
 
-# rotate(pepper)
-print("Aquí está el " + object_to_find)
+    # rotate(pepper)
+    print("Aquí está el " + object_to_find)
+else:
+    print("No sé qué es ese objeto")
 
 input("Cualquier tecla para salir")
 
