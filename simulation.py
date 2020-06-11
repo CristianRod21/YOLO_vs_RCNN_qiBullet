@@ -10,6 +10,7 @@ import find_word
 
 import sys
 import time
+import os
 
 import pybullet
 import pybullet_data
@@ -18,11 +19,24 @@ from qibullet import SimulationManager
 from qibullet import NaoVirtual
 from qibullet import PepperVirtual
 from qibullet import RomeoVirtual
+from gtts import gTTS 
+from playsound import playsound
+
 
 def rotate(pepper):
     pepper.move(0, 0, 0.5)
     # time.sleep(0.1745)
     # pepper.move(0,0,0)
+
+ 
+
+def reading_from_string(text_to_read, filename, language='es', slow_audio_speed=False):
+    audio_created = gTTS(text=text_to_read, lang=language,
+                         slow=slow_audio_speed)
+    audio_created.save(filename)
+    playsound(filename)
+    os.remove(filename)
+
 
 cap = cv2.VideoCapture('dang.mp4')
 #fps = int(cap.get(60))
@@ -32,9 +46,12 @@ port = 45678                   # The same port as used by the server
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 s.connect((host, port))
 
-
+language = 'es'
 shm = None
 
+
+#Starting index
+filename = "speech.mp3"
 
 sim_manager = SimulationManager()
 client = sim_manager.launchSimulation(gui=True)
@@ -83,7 +100,9 @@ print('Retriving camera frame')
 #x = 0
 frames = 0
 
-valid_object, object_to_find = find_word.find_word(input("¿Qué objeto desea encontrar?"))
+text_to_read = "¿Qué objeto desea encontrar?"
+reading_from_string(text_to_read, filename)
+valid_object, object_to_find = find_word.find_word(input(text_to_read))
 not_found = True
 
 if valid_object:
@@ -122,9 +141,13 @@ if valid_object:
     pepper.move(0,0,0)
 
     # rotate(pepper)
-    print("Aquí está el " + object_to_find)
+    text_to_read = "Aquí está el " + object_to_find
+    reading_from_string(text_to_read, filename)
+    print(text_to_read)
 else:
-    print("No sé qué es ese objeto")
+    text_to_read = "No sé qué es ese objeto"
+    reading_from_string(text_to_read, filename)
+    print(text_to_read)
 
 input("Cualquier tecla para salir")
 

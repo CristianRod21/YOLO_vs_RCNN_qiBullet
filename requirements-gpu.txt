@@ -7,3 +7,5 @@ matplotlib
 easydict
 pillow
 tensorflow_addons
+gTTS
+playsound
