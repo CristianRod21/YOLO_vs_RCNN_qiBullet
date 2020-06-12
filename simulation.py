@@ -21,6 +21,14 @@ from qibullet import PepperVirtual
 from qibullet import RomeoVirtual
 from gtts import gTTS 
 from playsound import playsound
+from enum import Enum
+
+class Bb(Enum):
+    X_MIN = 0
+    Y_MIN = 1
+    X_MAX = 2
+    Y_MAX = 3
+    NAME = 5   
 
 
 def rotate(pepper):
@@ -103,17 +111,17 @@ frames = 0
 text_to_read = "¿Qué objeto desea encontrar?"
 reading_from_string(text_to_read, filename)
 valid_object, object_to_find = find_word.find_word(input(text_to_read))
-not_found = True
-
+object_found = False
+coords = []
 if valid_object:
-    while(not_found):
+    while(not(object_found)):
         rotate(pepper)
         t = None
         frame = pepper.getCameraFrame(handle)
         if frames == 0:
             print('Sending initial informantion')
             shm = shared_memory.SharedMemory(create=True, size=frame.nbytes) # name='image_random'
-            data=json.dumps({"shape": frame.shape, "name": shm.name, "type": frame.dtype.name})
+            data=json.dumps({"shape": frame.shape, "name": shm.name, "type": frame.dtype.name, "object":object_to_find})
             s.send(data.encode())
             
             #data = s.recv(1024)
@@ -125,14 +133,14 @@ if valid_object:
         print('Sending')
         s.send(bytes("1",'utf8'))
         t = s.recv(1024)
-        found_classes = json.loads(t.decode())
-        found_classes = found_classes.get("found_objects")
-
-        if(object_to_find in found_classes):
-            not_found = False
+        found_info = json.loads(t.decode())
+        object_found = found_info.get("was_found")
+        if(object_found):
+            coords = found_info.get("coords")
 
         frames += 1
 
+    print(coords)
     pepper.move(0, 0, 0.5)
     time.sleep(0.1745)
     pepper.move(0,0,0)

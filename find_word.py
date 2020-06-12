@@ -25,7 +25,7 @@ def find_word(input_word):
 	    headers=headers,
 	    json=jsonBody)
 
-	english_word = str(r.content.decode("utf-8"))
+	english_word = str(r.content.decode("utf-8")).lower()
 	print("palabra en inglés: " + english_word)
 	#.decode("utf-8")
 

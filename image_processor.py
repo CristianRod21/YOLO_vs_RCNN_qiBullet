@@ -36,6 +36,9 @@ if gpus:
   except RuntimeError as e:
     print(e)
 
+
+ 
+
 def main(_argv):
     if FLAGS.tiny:
         STRIDES = np.array(cfg.YOLO.STRIDES_TINY)
@@ -105,6 +108,7 @@ def main(_argv):
     shape = data.get("shape")
     shared_memory_name = data.get("name")
     type_data = data.get("type")
+    object_to_find = data.get("object")
     
 
     # Attach to the existing shared memory block
@@ -112,27 +116,37 @@ def main(_argv):
     # Note that a.shape is (6,) and a.dtype is np.int64 in this example
     previous = None
     frame = None
+    print('objeto a encontrar ' + object_to_find)
     print('Esperando imágenes')
 
-    while True:
+
+    coords = np.empty(4, dtype=np.int32)
+    while (True):
         start_time = time.time()
-        print('Waiting frame')
+        # print('Waiting frame')
         data = (conn.recv(1024))
         if data == bytes('1', 'utf8'):
             previous = frame
             frame = np.ndarray(shape, dtype=type_data, buffer=existing_shm.buf)
-            frame, classes_found = process(frame,input_size,model, FLAGS, ANCHORS, STRIDES,XYSCALE)
+            frame, object_found, coords = process(frame,input_size,model, object_to_find, FLAGS, ANCHORS, STRIDES,XYSCALE)
             cv2.imshow('frame', frame)
             if cv2.waitKey(1) & 0xFF == ord('q'):
                 break
-            data = json.dumps({"found_objects":classes_found})
+                
+
+            if( object_found):
+                print("Lo encontréeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee")
+                data = json.dumps({"was_found":object_found, "coords":coords})
+            else :
+                data = json.dumps({"was_found":object_found})
+
             conn.sendall(data.encode())
             print("FPS: ", 1.0 / (time.time() - start_time))
     existing_shm.close()
 
   
 
-def process(frame,input_size,model, FLAGS, ANCHORS, STRIDES,XYSCALE ):
+def process(frame,input_size,model, object_to_find, FLAGS, ANCHORS, STRIDES,XYSCALE ):
    
         frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
         image = Image.fromarray((frame * 255).astype(np.uint8))
@@ -157,14 +171,14 @@ def process(frame,input_size,model, FLAGS, ANCHORS, STRIDES,XYSCALE ):
         bboxes = utils.postprocess_boxes(pred_bbox, frame_size, input_size, 0.25)
         bboxes = utils.nms(bboxes, 0.213, method='nms')
 
-        image, found_classes = utils.draw_bbox(frame, bboxes)
+        image, was_found, coords = utils.draw_bbox(frame, bboxes, object_to_find)
         curr_time = time.time()
         exec_time = curr_time - prev_time
         result = np.asarray(image)
         info = "time: %.2f ms" %(1000*exec_time)
         print(info)
         result = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
-        return result, found_classes
+        return result, was_found, coords
 if __name__ == "__main__":
     try:
         app.run(main)
