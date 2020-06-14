@@ -1,31 +1,10 @@
-import requests
+from googletrans import Translator
 
 def find_word(input_word):
 
-	clientId = "FREE_TRIAL_ACCOUNT"
-	clientSecret = "PUBLIC_SECRET"
+	translator = Translator()
+	english_word = translator.translate(input_word, dest='en').text.lower()
 
-	# TODO: Specify your translation requirements here:
-	fromLang = "es"
-	toLang = "en"
-	text = input_word
-
-	jsonBody = {
-	    'fromLang': fromLang,
-	    'toLang': toLang,
-	    'text': text
-	}
-
-	headers = {
-	    'X-WM-CLIENT-ID': clientId, 
-	    'X-WM-CLIENT-SECRET': clientSecret
-	}
-
-	r = requests.post('http://api.whatsmate.net/v1/translation/translate', 
-	    headers=headers,
-	    json=jsonBody)
-
-	english_word = str(r.content.decode("utf-8")).lower()
 	print("palabra en inglés: " + english_word)
 	#.decode("utf-8")
 

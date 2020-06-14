@@ -116,7 +116,7 @@ def main(_argv):
     # Note that a.shape is (6,) and a.dtype is np.int64 in this example
     previous = None
     frame = None
-    print('objeto a encontrar ' + object_to_find)
+    # print('objeto a encontrar ' + object_to_find)
     print('Esperando imágenes')
 
 
@@ -135,7 +135,6 @@ def main(_argv):
                 
 
             if( object_found):
-                print("Lo encontréeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee")
                 data = json.dumps({"was_found":object_found, "coords":coords})
             else :
                 data = json.dumps({"was_found":object_found})

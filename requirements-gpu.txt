@@ -9,3 +9,4 @@ pillow
 tensorflow_addons
 gTTS
 playsound
+googletrans

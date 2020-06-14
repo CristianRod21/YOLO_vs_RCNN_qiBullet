@@ -23,12 +23,12 @@ from gtts import gTTS
 from playsound import playsound
 from enum import Enum
 
-class Bb(Enum):
-    X_MIN = 0
-    Y_MIN = 1
-    X_MAX = 2
-    Y_MAX = 3
-    NAME = 5   
+
+X_MIN = 0
+Y_MIN = 1
+X_MAX = 2
+Y_MAX = 3
+ 
 
 
 def rotate(pepper):
@@ -102,20 +102,23 @@ pepper = sim_manager.spawnPepper(
 #  nao.goToPosture('StandInit', 1)
 pepper.goToPosture("Stand", 1)
 
+
+
 #  nao.setAngles('HeadPitch', 0.25, 1)    
 handle = pepper.subscribeCamera(PepperVirtual.ID_CAMERA_TOP )
 print('Retriving camera frame')
 #x = 0
 frames = 0
 
+
 text_to_read = "¿Qué objeto desea encontrar?"
 reading_from_string(text_to_read, filename)
-valid_object, object_to_find = find_word.find_word(input(text_to_read))
+original_text = input(text_to_read)
+valid_object, object_to_find = find_word.find_word(original_text)
 object_found = False
 coords = []
 if valid_object:
     while(not(object_found)):
-        rotate(pepper)
         t = None
         frame = pepper.getCameraFrame(handle)
         if frames == 0:
@@ -139,17 +142,30 @@ if valid_object:
             coords = found_info.get("coords")
 
         frames += 1
+        rotate(pepper)
 
     print(coords)
-    pepper.move(0, 0, 0.5)
-    time.sleep(0.1745)
-    pepper.move(0,0,0)
-    pepper.move(2,0,0)
-    time.sleep(4)
+    width = coords[ X_MAX ]  - coords[ X_MIN ]
+    height = coords[ Y_MAX ] - coords[ Y_MIN]
+
+    # https://github.com/paul-pias/Object-Detection-and-Distance-Measurement
+    distance = ((2 * 3.14 * 180) / (width + height * 360) * 1000 + 3) /39.37
+
+    print("El objeto se encuentra a una distancia de " + str(distance))
+
+    pepper_speed = 0.5
+
+    movement_time = (distance/pepper_speed) * 0.9
+
+    print("Voy a caminar por " + str(movement_time) + "s")
+    pepper.move( pepper_speed, 0, 0)
+    time.sleep(movement_time)
     pepper.move(0,0,0)
 
+
     # rotate(pepper)
-    text_to_read = "Aquí está el " + object_to_find
+    # pepper.setAngles('shoulder_roll', 3.141592, 50)
+    text_to_read = "Aquí está el " + original_text
     reading_from_string(text_to_read, filename)
     print(text_to_read)
 else:
