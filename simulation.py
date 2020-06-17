@@ -67,22 +67,63 @@ client = sim_manager.launchSimulation(gui=True)
 
 pybullet.setAdditionalSearchPath(pybullet_data.getDataPath())
 print(pybullet_data.getDataPath())
-pybullet.loadURDF('plane.urdf')
+f_plane = pybullet.loadURDF('plane.urdf')
+textUid = pybullet.loadTexture('enviroment/wood.png')
+pybullet.changeVisualShape(f_plane, -1, textureUniqueId=textUid)
+
+
+
+plane = pybullet.loadURDF('enviroment/room.urdf', globalScaling=3, basePosition=[0,0,-7])
+texUid = pybullet.loadTexture("enviroment/wall_2.png")
+pybullet.changeVisualShape(plane, -1, textureUniqueId=texUid)
+
 
 table = pybullet.loadURDF('table/table.urdf',
-         basePosition= [0.5,2,0],
-     physicsClientId=client)
+ basePosition= [0,5,0],
+physicsClientId=client)
+table_2 = pybullet.loadURDF('table/table.urdf',
+ basePosition= [5,0,0],
+ baseOrientation=pybullet.getQuaternionFromEuler([0, 0, 1.5]),
+ physicsClientId=client)
+table_3 = pybullet.loadURDF('table/table.urdf',
+ basePosition= [-5,0,0],
+ baseOrientation=pybullet.getQuaternionFromEuler([0, 0, -1.5]),
+ physicsClientId=client)
+table_4 = pybullet.loadURDF('table/table.urdf',
+ basePosition= [0,-5,0],
+ physicsClientId=client)
 
-item_in_table = pybullet.loadURDF('teddy_vhacd.urdf',
-    basePosition= [0.5,2,1],
-    globalScaling = 5.0,
+
+item_in_table_1 = pybullet.loadURDF('enviroment/water_bottle.urdf',
+    basePosition= [-0.5,5,0.6],
+    globalScaling = 1.0,
     physicsClientId=client)
 
-item_in_table2 = pybullet.loadURDF('bicycle/bike.urdf',
-     basePosition= [0.5,2.5,1],
-     globalScaling = 0.7,
-     physicsClientId=client)
+item_in_table_1 = pybullet.loadURDF('teddy_vhacd.urdf',
+basePosition= [0,5,0.6],
+globalScaling = 5.0,
+ baseOrientation=pybullet.getQuaternionFromEuler([2,0 , 0]),
+physicsClientId=client)
 
+
+item_in_table2 =  pybullet.loadURDF('enviroment/laptop.urdf',
+    basePosition= [-5,0,0.7],
+    baseOrientation=pybullet.getQuaternionFromEuler([2, 0, 3]),
+    globalScaling = 3.5,
+    physicsClientId=client)
+
+item_in_table3 =  pybullet.loadURDF('enviroment/knife.urdf',
+    basePosition= [0,-5,0.7],
+    baseOrientation=pybullet.getQuaternionFromEuler([2, 0, 3]),
+    globalScaling = 0.1,
+    physicsClientId=client)
+
+
+item_in_table4 =  pybullet.loadURDF('enviroment/cat.urdf',
+    basePosition= [5,0,0.7],
+    baseOrientation=pybullet.getQuaternionFromEuler([0, 0, -1.5]),
+    globalScaling = 0.3,
+    physicsClientId=client)
     
 
 #walls2 = pybullet.loadURDF('C:\\Users\\cjrs2\\Downloads\\keras-yolo3\\proyecto_robo\\walls2.urdf',
