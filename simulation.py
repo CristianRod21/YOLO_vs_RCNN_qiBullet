@@ -96,12 +96,12 @@ table_4 = pybullet.loadURDF('table/table.urdf',
 
 item_in_table_1 = pybullet.loadURDF('enviroment/water_bottle.urdf',
     basePosition= [-0.5,5,0.6],
-    globalScaling = 1.0,
+    globalScaling = 3.0,
     physicsClientId=client)
 
 item_in_table_1 = pybullet.loadURDF('teddy_vhacd.urdf',
 basePosition= [0,5,0.6],
-globalScaling = 5.0,
+globalScaling = 6.0,
  baseOrientation=pybullet.getQuaternionFromEuler([2,0 , 0]),
 physicsClientId=client)
 
