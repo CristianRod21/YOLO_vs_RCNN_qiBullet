@@ -59,6 +59,7 @@ shm = None
 
 
 #Starting index
+object_filename = "object.mp3"
 filename = "speech.mp3"
 
 sim_manager = SimulationManager()
@@ -136,7 +137,7 @@ item_in_table4 =  pybullet.loadURDF('enviroment/cat.urdf',
 #    quaternion=pybullet.getQuaternionFromEuler([0, 0, 3]))
 pepper = sim_manager.spawnPepper(
     client,
-    translation=[0, -2, 0],
+    translation=[0, 0, 0],
     quaternion=pybullet.getQuaternionFromEuler([0, 0, 1.5]))
 
 
@@ -148,12 +149,15 @@ pepper.goToPosture("Stand", 1)
 #  nao.setAngles('HeadPitch', 0.25, 1)    
 handle = pepper.subscribeCamera(PepperVirtual.ID_CAMERA_TOP )
 print('Retriving camera frame')
+resolution = pepper.getCameraResolution(handle)
+#print("Resolution: " + str(resolution.width) + "x" + str(resolution.height))
+mid_frame = resolution.width / 2
 #x = 0
 frames = 0
 
 
 text_to_read = "¿Qué objeto desea encontrar?"
-reading_from_string(text_to_read, filename)
+reading_from_string(text_to_read, object_filename)
 original_text = input(text_to_read)
 valid_object, object_to_find = find_word.find_word(original_text)
 object_found = False
@@ -179,8 +183,13 @@ if valid_object:
         t = s.recv(1024)
         found_info = json.loads(t.decode())
         object_found = found_info.get("was_found")
-        if(object_found):
+        if object_found:
             coords = found_info.get("coords")
+            right_distance_from_middle = abs(coords[X_MAX] - mid_frame)
+            left_distance_from_middle = abs(coords[X_MIN] - mid_frame)
+            # Este 20 es solo un threshold para que se posicione como debe, se puede cambiar si parece que no está bien
+            if abs(right_distance_from_middle - left_distance_from_middle) > 20:
+                object_found = False
 
         frames += 1
         rotate(pepper)
@@ -193,19 +202,21 @@ if valid_object:
     distance = ((2 * 3.14 * 180) / (width + height * 360) * 1000 + 3) /39.37
 
     print("El objeto se encuentra a una distancia de " + str(distance))
+    pepper_speed = 1
 
-    pepper_speed = 0.5
-
-    movement_time = (distance/pepper_speed) * 0.9
+    movement_time = (distance/pepper_speed) * 5
 
     print("Voy a caminar por " + str(movement_time) + "s")
-    pepper.move( pepper_speed, 0, 0)
+    pepper.move(pepper_speed, 0, 0)
+    print("Voy a caminar, miher")
     time.sleep(movement_time)
+    print("A mimir")
     pepper.move(0,0,0)
-
+    current_angle = pepper.getAnglesPosition(['RShoulderPitch'])
+    # print("Mi brazo derecho está en " + str(current_angle))
 
     # rotate(pepper)
-    # pepper.setAngles('shoulder_roll', 3.141592, 50)
+    pepper.setAngles('RShoulderPitch', 2.08 - current_angle, 1)
     text_to_read = "Aquí está el " + original_text
     reading_from_string(text_to_read, filename)
     print(text_to_read)
