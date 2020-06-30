@@ -178,7 +178,7 @@ if valid_object:
         # Now create a NumPy array backed by shared memory
         b = np.ndarray(frame.shape, dtype=frame.dtype, buffer=shm.buf)
         b[:] = frame[:]  # Copy the original data into shared memory
-        print('Sending')
+        #print('Sending')
         s.send(bytes("1",'utf8'))
         t = s.recv(1024)
         found_info = json.loads(t.decode())
@@ -188,29 +188,29 @@ if valid_object:
             right_distance_from_middle = abs(coords[X_MAX] - mid_frame)
             left_distance_from_middle = abs(coords[X_MIN] - mid_frame)
             # Este 20 es solo un threshold para que se posicione como debe, se puede cambiar si parece que no está bien
-            if abs(right_distance_from_middle - left_distance_from_middle) > 20:
+            if abs(right_distance_from_middle - left_distance_from_middle) > 15:
                 object_found = False
 
         frames += 1
         rotate(pepper)
 
-    print(coords)
+    #print(coords)
     width = coords[ X_MAX ]  - coords[ X_MIN ]
     height = coords[ Y_MAX ] - coords[ Y_MIN]
 
     # https://github.com/paul-pias/Object-Detection-and-Distance-Measurement
     distance = ((2 * 3.14 * 180) / (width + height * 360) * 1000 + 3) /39.37
 
-    print("El objeto se encuentra a una distancia de " + str(distance))
+    #print("El objeto se encuentra a una distancia de " + str(distance))
     pepper_speed = 1
+    # distance
+    movement_time = (2.6669/pepper_speed) * 5
 
-    movement_time = (distance/pepper_speed) * 5
-
-    print("Voy a caminar por " + str(movement_time) + "s")
+    #print("Voy a caminar por " + str(movement_time) + "s")
     pepper.move(pepper_speed, 0, 0)
-    print("Voy a caminar, miher")
+    #print("Voy a caminar, miher")
     time.sleep(movement_time)
-    print("A mimir")
+    #print("A mimir")
     pepper.move(0,0,0)
     current_angle = pepper.getAnglesPosition(['RShoulderPitch'])
     # print("Mi brazo derecho está en " + str(current_angle))

@@ -104,7 +104,7 @@ def main(_argv):
     data = json.loads(data.decode())
 
     # conn.sendall(json.dumps(data).encode())
-    print('Recived iniatializing data')
+    #print('Recived iniatializing data')
     shape = data.get("shape")
     shared_memory_name = data.get("name")
     type_data = data.get("type")
@@ -140,7 +140,7 @@ def main(_argv):
                 data = json.dumps({"was_found":object_found})
 
             conn.sendall(data.encode())
-            print("FPS: ", 1.0 / (time.time() - start_time))
+            #print("FPS: ", 1.0 / (time.time() - start_time))
     existing_shm.close()
 
   
@@ -175,7 +175,7 @@ def process(frame,input_size,model, object_to_find, FLAGS, ANCHORS, STRIDES,XYSC
         exec_time = curr_time - prev_time
         result = np.asarray(image)
         info = "time: %.2f ms" %(1000*exec_time)
-        print(info)
+        #print(info)
         result = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
         return result, was_found, coords
 if __name__ == "__main__":
