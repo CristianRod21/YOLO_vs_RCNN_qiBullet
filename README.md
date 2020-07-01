@@ -9,10 +9,11 @@ Simulation in QiBullet of a paper robot capable of object recognition using YOLO
 * Tensorflow 2.1.0
 * tensorflow_addons 0.9.1 (required for mish activation)
 
-### Instllation
+### Installation
 We recommend an isolated eviroment (you can use conda).
 
-Download yolov3.weights file: https://drive.google.com/open?id=1cewMfusmPjYWbrnuJRuKhPMwRe_b9PaT
+Download yolov3.weights file: https://pjreddie.com/media/files/yolov3.weights
+
 For CPU:
 ```
 pip install -r requeriments
