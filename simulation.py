@@ -114,9 +114,9 @@ item_in_table2 =  pybullet.loadURDF('enviroment/laptop.urdf',
     physicsClientId=client)
 
 item_in_table3 =  pybullet.loadURDF('enviroment/knife.urdf',
-    basePosition= [0,-5,0.7],
-    baseOrientation=pybullet.getQuaternionFromEuler([2, 0, 3]),
-    globalScaling = 0.1,
+    basePosition= [-0.5,-5,0.78],
+    baseOrientation=pybullet.getQuaternionFromEuler([0, 0, 1.2]),
+    globalScaling = 0.3,
     physicsClientId=client)
 
 
